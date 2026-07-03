@@ -1,0 +1,9 @@
+allowBuilds:
+  '@tailwindcss/oxide': true
+  sharp: true
+  unrs-resolver: true
+
+peerDependencyRules:
+  allowedVersions:
+    react: '19'
+    react-dom: '19'
