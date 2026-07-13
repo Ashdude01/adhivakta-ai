@@ -32,3 +32,11 @@ export const IconLogout = (p: P) => (<svg {...base(p)}><path d="M9 21H5a2 2 0 0 
 export const IconScale = (p: P) => (<svg {...base(p)}><path d="M12 3v18M7 21h10M5 7l-3 6a4 4 0 0 0 6 0L5 7Zm14 0-3 6a4 4 0 0 0 6 0l-3-6ZM5 7l7-2 7 2"/></svg>);
 export const IconUpload = (p: P) => (<svg {...base(p)}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>);
 export const IconPalette = (p: P) => (<svg {...base(p)}><circle cx="13.5" cy="6.5" r="1.5"/><circle cx="17.5" cy="10.5" r="1.5"/><circle cx="8.5" cy="7.5" r="1.5"/><circle cx="6.5" cy="12.5" r="1.5"/><path d="M12 2a10 10 0 1 0 0 20 2.5 2.5 0 0 0 2-4 2.5 2.5 0 0 1 2-4h2a4 4 0 0 0 4-4 10 10 0 0 0-10-8Z"/></svg>);
+export const IconEye = (p: P) => (<svg {...base(p)}><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>);
+export const IconTrash = (p: P) => (<svg {...base(p)}><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6M14 11v6"/></svg>);
+export const IconRename = (p: P) => (<svg {...base(p)}><path d="M4 7V5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2M9 20h6M12 4v16"/></svg>);
+export const IconList = (p: P) => (<svg {...base(p)}><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>);
+export const IconExternal = (p: P) => (<svg {...base(p)}><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>);
+export const IconMinus = (p: P) => (<svg {...base({ strokeWidth: 2.4, ...p })}><path d="M5 12h14"/></svg>);
+export const IconStop = (p: P) => (<svg {...base(p)} fill="currentColor" stroke="none"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>);
+export const IconFilePdf = (p: P) => (<svg {...base(p)}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M8.5 13h1a1.5 1.5 0 0 1 0 3h-1Zm0 3v2"/></svg>);

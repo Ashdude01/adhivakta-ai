@@ -9,12 +9,80 @@ export interface DbUser {
   role: string;
   firm_name: string | null;
   phone: string | null;
+  /** @deprecated superseded by enrolment_no. */
   bar_council_id: string | null;
   avatar_url: string | null;
   plan: string;
   theme: string | null;
+
+  // Letterhead — the particulars a legal notice must be issued under.
+  designation: string;
+  enrolment_no: string | null;
+  bar_council: string | null;
+  office_address: string | null;
+  city: string | null;
+  state: string | null;
+  pincode: string | null;
+  alt_phone: string | null;
+
   created_at: string;
   updated_at: string;
+}
+
+export type EntityType =
+  | 'individual' | 'company' | 'partnership' | 'proprietorship'
+  | 'huf' | 'trust' | 'society' | 'government';
+
+/** Relation shown in a cause title: "Rajesh Sharma, S/o Mohan Lal". */
+export type RelationType = 's/o' | 'd/o' | 'w/o' | 'h/o' | 'c/o';
+
+export interface DbContact {
+  id: string;
+  user_id: string;
+  entity_type: EntityType;
+  salutation: string | null;
+  full_name: string;
+  aka_names: string[];
+  age: number | null;
+  gender: string | null;
+  relation_type: RelationType | null;
+  relation_name: string | null;
+  occupation: string | null;
+  address_line: string | null;
+  village_town: string | null;
+  taluka: string | null;
+  district: string | null;
+  state: string | null;
+  pincode: string | null;
+  country: string;
+  mobile: string | null;
+  email: string | null;
+  pan: string | null;
+  /** Last four digits only — full Aadhaar is never stored (DPDP minimisation). */
+  aadhaar_last4: string | null;
+  is_minor: boolean;
+  is_unsound_mind: boolean;
+  guardian_contact_id: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DbMatterParty {
+  id: string;
+  matter_id: string;
+  contact_id: string;
+  role: string;
+  side: 'client' | 'opposite' | 'other';
+  party_no: number;
+  advocate_name: string | null;
+  address_for_service: string | null;
+  created_at: string;
+}
+
+/** A matter party joined to the contact it points at — what the UI and AI read. */
+export interface MatterPartyWithContact extends DbMatterParty {
+  contact: DbContact;
 }
 
 export interface DbMatter {
@@ -29,11 +97,56 @@ export interface DbMatter {
   tag_class: string | null;
   color: string | null;
   matter_type: string | null;
-  parties: { client?: string; opposite?: string } | null;
-  key_dates: Record<string, string> | null;
+  matter_type_code: string | null;
+  practice_area: string | null;
+  client_ref: string | null;
   description: string | null;
+
+  facts: Record<string, unknown>;
+  relief_sought: string | null;
+  suit_value: number | null;
+
+  court_complex: string | null;
+  district: string | null;
+  state: string | null;
+
+  cnr: string | null;
+  case_type: string | null;
+  case_number: string | null;
+  case_year: number | null;
+  filing_number: string | null;
+  act: string | null;
+  section: string | null;
+  filed_on: string | null;
+  next_hearing_date: string | null;
+  opened_on: string;
+
+  /** @deprecated superseded by matter_parties + contacts. Legacy rows only. */
+  parties: { client?: string; opposite?: string } | null;
+  /** @deprecated superseded by `facts`. Legacy rows only. */
+  key_dates: Record<string, string> | null;
+
   created_at: string;
   updated_at: string;
+}
+
+export interface DbMatterDocument {
+  id: string;
+  user_id: string;
+  matter_id: string;
+  /** Object key inside the private bucket. Never handed to the browser. */
+  storage_path: string;
+  file_name: string;
+  mime_type: string | null;
+  size_bytes: number | null;
+  kind: string;
+  description: string | null;
+  uploaded_at: string;
+}
+
+/** A matter with its parties resolved. Returned by getMatterFull(). */
+export interface MatterFull extends DbMatter {
+  parties_list: MatterPartyWithContact[];
 }
 
 export interface DbDraft {

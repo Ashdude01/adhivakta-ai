@@ -58,9 +58,9 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
       <aside className={`sidebar ${open ? 'open' : ''} ${collapsed ? 'collapsed' : ''}`}>
         <div className="brand">
-          <div className="logo">अ</div>
+          <div className="logo">E</div>
           <div className="brand-text">
-            <div className="bt">Adhivakta AI</div>
+            <div className="bt">Erolt AI</div>
             <div className="bs">Legal Workspace</div>
           </div>
         </div>

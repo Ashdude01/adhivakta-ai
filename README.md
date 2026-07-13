@@ -1,4 +1,4 @@
-# Adhivakta AI — Legal Workspace (Next.js)
+# Erolt AI — Legal Workspace (Next.js)
 
 AI-powered legal **drafting**, **case & draft library**, **document review + chat**, and **e-signature** for Indian advocates. Built with Next.js 14 (App Router) + TypeScript. Fully responsive, installable as a PWA, with 5 switchable themes and a pluggable AI/e-sign provider layer.
 
@@ -26,25 +26,36 @@ npm run dev
 
 ## 🔑 Adding AI models (free first)
 
-Open `.env.local` and set `AI_PROVIDER` to one of:
-`mock` (default) · `gemini` · `groq` · `openrouter` · `huggingface` · `openai`
+Paste a key into `.env.local` and leave `AI_PROVIDER` blank — the app picks
+whichever provider has a key. Set `AI_PROVIDER` to pin one, or to `mock` to stay
+offline with keys present.
 
-Then paste the matching key. Examples of **free** options:
-
-| Provider | Get a key | Models |
+| Provider | Get a key | Free models |
 |---|---|---|
-| **Gemini** | https://aistudio.google.com/app/apikey | gemini-1.5-flash (free) |
-| **Groq** | https://console.groq.com/keys | Meta Llama 3 (free, fast) |
+| **Gemini** | https://aistudio.google.com/app/apikey | Gemini 3.x Flash |
+| **Groq** | https://console.groq.com/keys | Meta Llama 3.3 (fast) |
 | **OpenRouter** | https://openrouter.ai/keys | many `:free` models |
 | **Hugging Face** | https://huggingface.co/settings/tokens | Mistral, etc. |
 | OpenAI (paid) | https://platform.openai.com | gpt-4o-mini |
 
 ```env
-AI_PROVIDER=gemini
+AI_PROVIDER=
 GEMINI_API_KEY=your-key-here
 ```
 
-No code change needed — the app auto-detects the key and switches. If a key is missing/invalid it **degrades gracefully** to demo output instead of crashing.
+The drafting screen shows a **model picker** listing only the providers whose key
+is present — the keys never reach the browser.
+
+**Gemini model note:** `gemini-1.5-flash` and `gemini-2.5-flash` are retired for
+new API keys, and `gemini-2.0-flash` has no free-tier quota. Leave `GEMINI_MODEL`
+blank to use the app's default. Google's free quota is *per model*, so when the
+chosen model is busy (503) or out of quota (429) the app automatically falls back
+to another free model and tells you which one wrote the draft.
+
+Drafts **stream** as they are written, with a Stop button. If the provider fails
+mid-stream the error is shown and the partial text kept — demo text is never
+silently spliced into a real draft. Non-streaming calls (chat, review) still
+degrade to demo output rather than crashing.
 
 ---
 

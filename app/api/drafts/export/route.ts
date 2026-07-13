@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Document, Packer, Paragraph, TextRun, AlignmentType } from 'docx';
 import { currentUserId } from '@/lib/session';
 import { getDraft, listDraftVersions, updateDraftStatus } from '@/lib/data/drafts';
+import { courtPdf } from '@/lib/legal/courtPdf';
 import { audit } from '@/lib/data/audit';
 
 export const runtime = 'nodejs';
@@ -83,6 +84,16 @@ export async function POST(req: NextRequest) {
   await audit({ userId, action: 'draft.export', entity: 'draft', entityId: draftId ?? undefined, meta: { format } });
 
   const safeName = docTitle.replace(/[^\w\d\- ]+/g, '').slice(0, 60) || 'draft';
+
+  if (format === 'pdf') {
+    const bytes = await courtPdf(docTitle, content);
+    return new NextResponse(new Uint8Array(bytes), {
+      headers: {
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename="${safeName}.pdf"`,
+      },
+    });
+  }
 
   if (format === 'docx') {
     const buffer = await Packer.toBuffer(courtDocx(docTitle, content));

@@ -1,6 +1,7 @@
 import 'server-only';
 import { createSupabaseAdmin } from '@/lib/supabase/server';
 import type { DbDraft, DbDraftVersion, VerifierReport } from '@/lib/supabase/types';
+import { isUuid } from '@/lib/validation/uuid';
 
 export async function listDrafts(userId: string, limit = 20): Promise<DbDraft[]> {
   const sb = createSupabaseAdmin();
@@ -10,6 +11,19 @@ export async function listDrafts(userId: string, limit = 20): Promise<DbDraft[]>
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
     .limit(limit);
+  if (error) throw error;
+  return (data as DbDraft[]) ?? [];
+}
+
+export async function listDraftsByMatter(userId: string, matterId: string): Promise<DbDraft[]> {
+  if (!isUuid(matterId)) return [];
+  const sb = createSupabaseAdmin();
+  const { data, error } = await sb
+    .from('drafts')
+    .select('id, title, doc_type, status, language, created_at, matter_id')
+    .eq('user_id', userId)
+    .eq('matter_id', matterId)
+    .order('created_at', { ascending: false });
   if (error) throw error;
   return (data as DbDraft[]) ?? [];
 }
@@ -60,6 +74,7 @@ export async function createDraft(
 }
 
 export async function getDraft(userId: string, draftId: string): Promise<DbDraft | null> {
+  if (!isUuid(draftId)) return null;
   const sb = createSupabaseAdmin();
   const { data, error } = await sb
     .from('drafts')
@@ -78,6 +93,20 @@ export async function updateDraftStatus(userId: string, draftId: string, status:
     .update({ status })
     .eq('id', draftId)
     .eq('user_id', userId);
+  if (error) throw error;
+}
+
+export async function deleteDraft(userId: string, draftId: string): Promise<void> {
+  const sb = createSupabaseAdmin();
+  // draft_versions and citations cascade from drafts; esign_requests keep their
+  // own record of what was signed and are deliberately not touched.
+  const { error } = await sb.from('drafts').delete().eq('id', draftId).eq('user_id', userId);
+  if (error) throw error;
+}
+
+export async function renameDraft(userId: string, draftId: string, title: string): Promise<void> {
+  const sb = createSupabaseAdmin();
+  const { error } = await sb.from('drafts').update({ title }).eq('id', draftId).eq('user_id', userId);
   if (error) throw error;
 }
 

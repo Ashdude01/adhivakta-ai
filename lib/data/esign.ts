@@ -1,6 +1,7 @@
 import 'server-only';
 import { createSupabaseAdmin } from '@/lib/supabase/server';
 import type { DbEsignRequest } from '@/lib/supabase/types';
+import { isUuid } from '@/lib/validation/uuid';
 
 export async function listEsignRequests(userId: string, limit = 20): Promise<DbEsignRequest[]> {
   const sb = createSupabaseAdmin();
@@ -47,6 +48,42 @@ export async function createEsignRequest(
     .single();
   if (error) throw error;
   return data as DbEsignRequest;
+}
+
+export async function getEsignRequest(userId: string, requestId: string): Promise<DbEsignRequest | null> {
+  if (!isUuid(requestId)) return null;
+  const sb = createSupabaseAdmin();
+  const { data, error } = await sb
+    .from('esign_requests').select('*')
+    .eq('id', requestId).eq('user_id', userId)
+    .maybeSingle();
+  if (error) throw error;
+  return (data as DbEsignRequest) ?? null;
+}
+
+export async function listEsignEventsFor(requestId: string) {
+  const sb = createSupabaseAdmin();
+  const { data, error } = await sb
+    .from('esign_events').select('*')
+    .eq('esign_request_id', requestId)
+    .order('at', { ascending: true });
+  if (error) throw error;
+  return data ?? [];
+}
+
+/**
+ * Withdraws a signature request that has not been signed.
+ *
+ * A signed request is never deleted: it is the evidence that a document was
+ * executed, and the IT Act eligibility decision recorded against it is a
+ * compliance artefact. Callers must check `status` first.
+ */
+export async function deleteEsignRequest(userId: string, requestId: string): Promise<void> {
+  const sb = createSupabaseAdmin();
+  const { error } = await sb
+    .from('esign_requests').delete()
+    .eq('id', requestId).eq('user_id', userId).neq('status', 'signed');
+  if (error) throw error;
 }
 
 /** Raw provider/system event trail per signing envelope (append-only). */

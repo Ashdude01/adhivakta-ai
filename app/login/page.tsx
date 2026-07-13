@@ -47,8 +47,8 @@ export default function LoginPage() {
     <div className="auth-wrap">
       <div className="auth-side">
         <div className="brand">
-          <div className="logo">अ</div>
-          <div><div className="bt">Adhivakta AI</div><div className="bs">Legal Workspace</div></div>
+          <div className="logo">E</div>
+          <div><div className="bt">Erolt AI</div><div className="bs">Legal Workspace</div></div>
         </div>
         <div>
           <h1 style={{ fontSize: 34, color: '#fff', lineHeight: 1.15, marginBottom: 14 }}>

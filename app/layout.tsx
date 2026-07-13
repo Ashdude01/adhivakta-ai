@@ -3,10 +3,10 @@ import './globals.css';
 import Providers from '@/components/Providers';
 
 export const metadata: Metadata = {
-  title: 'Adhivakta AI — Legal Workspace',
+  title: 'Erolt AI — Legal Workspace',
   description: 'AI-powered legal drafting, research, document review and e-signature for Indian advocates.',
   manifest: '/manifest.webmanifest',
-  appleWebApp: { capable: true, statusBarStyle: 'default', title: 'Adhivakta AI' },
+  appleWebApp: { capable: true, statusBarStyle: 'default', title: 'Erolt AI' },
 };
 
 export const viewport: Viewport = {

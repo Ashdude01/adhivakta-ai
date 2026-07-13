@@ -237,6 +237,21 @@ button { font-family: inherit; cursor: pointer; }
 .usercard .un { color: var(--sidebar-text); font-weight: 700; font-size: 13px; text-align: left; }
 .usercard .ur { color: var(--sidebar-faint); font-size: 11px; text-align: left; }
 
+/* Account menu — themed to the dark sidebar so it reads as one surface, not a
+   light card floating on a dark rail. */
+.usermenu {
+  position: absolute; bottom: calc(100% + 8px); left: 0; right: 0; z-index: 50;
+  background: var(--sidebar-2); border: 1px solid rgba(255,255,255,.12);
+  border-radius: 12px; box-shadow: 0 14px 40px rgba(0,0,0,.45); overflow: hidden;
+}
+.usermenu-head { padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,.08); }
+.usermenu-cap { font-size: 9.5px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: var(--sidebar-faint); margin-bottom: 2px; }
+.usermenu-email { font-size: 12.5px; color: var(--sidebar-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.usermenu-item { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 14px; font-size: 13px; font-weight: 600; color: var(--sidebar-text); background: none; border: none; cursor: pointer; text-align: left; transition: background .14s; }
+.usermenu-item:hover { background: rgba(255,255,255,.08); }
+.usermenu-item.danger { color: #ff9a9a; border-top: 1px solid rgba(255,255,255,.08); }
+.usermenu-item.danger:hover { background: rgba(255,70,70,.16); }
+
 /* ---- Topbar ---- */
 .topbar {
   height: 60px; flex-shrink: 0; display: flex; align-items: center; gap: 12px;
@@ -337,6 +352,49 @@ button { font-family: inherit; cursor: pointer; }
 .ai-toolbar { position: sticky; bottom: 0; display: flex; gap: 8px; flex-wrap: wrap; padding: 13px; background: var(--surface); border-top: 1px solid var(--line); }
 .ai-pill { display: inline-flex; align-items: center; gap: 6px; background: var(--brand-soft); color: var(--brand); border: none; font-weight: 700; font-size: 12px; padding: 8px 13px; border-radius: 20px; transition: .15s; }
 .ai-pill:hover { background: var(--brand); color: var(--on-brand); }
+/* Solid block cursor that trails the streamed text, like ChatGPT/Claude. */
+.caret { display: inline-block; width: 8px; height: 1.05em; margin-left: 2px; transform: translateY(2px); background: var(--brand); border-radius: 1px; animation: caret-blink 1.1s steps(1) infinite; }
+@keyframes caret-blink { 50% { opacity: 0; } }
+textarea.doc-preview { background: transparent; color: var(--text); outline: none; }
+
+/* ---- Icon-only action buttons ---- */
+.icon-btn { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; transition: .14s; flex: none; }
+.icon-btn:hover { background: var(--brand-soft); color: var(--brand); border-color: transparent; }
+.icon-btn.danger:hover { background: color-mix(in srgb, crimson 12%, transparent); color: crimson; }
+.icon-btn:disabled { opacity: .4; cursor: not-allowed; }
+.icon-btn svg { width: 16px; height: 16px; }
+.icon-actions { display: inline-flex; gap: 4px; align-items: center; }
+
+/* ---- Streaming "writing" surface (premium chat feel) ---- */
+.writing-status { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--brand); font-weight: 600; }
+.writing-dots { display: inline-flex; gap: 3px; }
+.writing-dots i { width: 5px; height: 5px; border-radius: 50%; background: currentColor; animation: writing-bounce 1.2s ease-in-out infinite; }
+.writing-dots i:nth-child(2) { animation-delay: .18s; }
+.writing-dots i:nth-child(3) { animation-delay: .36s; }
+@keyframes writing-bounce { 0%, 60%, 100% { opacity: .3; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-3px); } }
+
+/* Faint shimmer shown before the first token arrives. */
+.skeleton-line { height: 12px; border-radius: 6px; margin: 10px 0; background: linear-gradient(90deg, var(--line) 25%, color-mix(in srgb, var(--line) 40%, transparent) 50%, var(--line) 75%); background-size: 200% 100%; animation: shimmer 1.4s linear infinite; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+/* Each committed streamed chunk fades in, so text lands softly rather than snapping. */
+.stream-in { animation: stream-fade .28s ease-out; }
+@keyframes stream-fade { from { opacity: .35; } to { opacity: 1; } }
+
+/* ---- Searchable matter picker ---- */
+.matter-trigger { display: flex; align-items: center; gap: 8px; width: 100%; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); cursor: pointer; text-align: left; }
+.matter-trigger:hover { border-color: var(--brand); }
+.matter-trigger-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.matter-clear { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 6px; color: var(--muted); }
+.matter-clear:hover { background: var(--line); color: var(--text); }
+.matter-pop { position: absolute; z-index: 40; top: calc(100% + 6px); left: 0; right: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 12px 34px rgba(0,0,0,.16); overflow: hidden; }
+.matter-search { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+.matter-search input { flex: 1; border: none; background: transparent; outline: none; font: inherit; color: var(--text); }
+.matter-list { max-height: 300px; overflow-y: auto; padding: 6px; }
+.matter-opt { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px; border: none; background: transparent; border-radius: 8px; cursor: pointer; text-align: left; }
+.matter-opt.active { background: var(--brand-soft); }
+.matter-opt.chosen { outline: 1px solid var(--brand); }
+.matter-code { display: inline-flex; align-items: center; justify-content: center; min-width: 34px; height: 26px; padding: 0 6px; border-radius: 6px; background: var(--brand); color: var(--on-brand); font-size: 11px; font-weight: 800; flex: none; }
 
 /* ---- Review + Chat ---- */
 .review-grid { display: grid; grid-template-columns: 1fr 390px; gap: 18px; height: calc(100vh - 190px); min-height: 540px; }

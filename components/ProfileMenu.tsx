@@ -35,22 +35,17 @@ export default function ProfileMenu({ collapsed = false }: { collapsed?: boolean
   return (
     <div className="relative" ref={ref}>
       {open && (
-        <div className="absolute bottom-full left-0 right-0 mb-2 z-50 overflow-hidden rounded-xl border border-line bg-surface text-ink shadow-[var(--shadow-lg)]">
-          <div className="border-b border-line px-3.5 py-3">
-            <div className="truncate text-[13px] font-bold text-ink">{user?.name || 'Advocate'}</div>
-            <div className="truncate text-[11.5px] text-muted">{user?.email || '—'}</div>
+        <div className="usermenu">
+          {/* The name is already in the trigger just below, so the menu shows
+              only the email as context, then the actions — no duplication. */}
+          <div className="usermenu-head">
+            <div className="usermenu-cap">Signed in as</div>
+            <div className="usermenu-email">{user?.email || '—'}</div>
           </div>
-          <Link
-            href="/profile"
-            onClick={() => setOpen(false)}
-            className="flex items-center gap-2.5 px-3.5 py-2.5 text-[13px] font-semibold text-ink transition-colors hover:bg-brand-soft hover:text-brand"
-          >
+          <Link href="/profile" onClick={() => setOpen(false)} className="usermenu-item">
             <IconUser width={16} height={16} /> Manage profile
           </Link>
-          <button
-            onClick={() => signOut({ callbackUrl: '/login' })}
-            className="flex w-full items-center gap-2.5 border-t border-line px-3.5 py-2.5 text-left text-[13px] font-semibold text-danger transition-colors hover:bg-danger-soft"
-          >
+          <button onClick={() => signOut({ callbackUrl: '/login' })} className="usermenu-item danger">
             <IconLogout width={16} height={16} /> Sign out
           </button>
         </div>

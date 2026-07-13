@@ -3,7 +3,10 @@ import { createSupabaseAdmin } from '@/lib/supabase/server';
 import type { DbUser } from '@/lib/supabase/types';
 
 export type ProfileUpdate = Partial<
-  Pick<DbUser, 'name' | 'firm_name' | 'phone' | 'bar_council_id' | 'avatar_url' | 'theme'>
+  Pick<DbUser,
+    'name' | 'firm_name' | 'phone' | 'avatar_url' | 'theme' |
+    'designation' | 'enrolment_no' | 'bar_council' |
+    'office_address' | 'city' | 'state' | 'pincode' | 'alt_phone'>
 >;
 
 export async function getUserByEmail(email: string): Promise<DbUser | null> {

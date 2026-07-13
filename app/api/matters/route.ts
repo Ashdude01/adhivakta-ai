@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { currentUserId } from '@/lib/session';
-import { listMatters, createMatter } from '@/lib/data/matters';
+import { listMatters, createMatter, type PartyInput } from '@/lib/data/matters';
 import { audit } from '@/lib/data/audit';
+import { getMatterType } from '@/lib/legal/matterTypes';
+import { matterCreateSchema, parseFacts } from '@/lib/validation/matter';
 
 export const runtime = 'nodejs';
 
@@ -13,33 +15,62 @@ export async function GET() {
   return NextResponse.json({ matters });
 }
 
-const schema = z.object({
-  title: z.string().trim().min(2).max(160),
-  code: z.string().trim().max(8).optional(),
-  subtitle: z.string().trim().max(200).optional(),
-  court: z.string().trim().max(120).optional(),
-  status: z.string().trim().max(40).optional(),
-  tag: z.string().trim().max(40).optional(),
-  tag_class: z.string().trim().max(40).optional(),
-  color: z.string().trim().max(40).optional(),
-  matter_type: z.string().trim().max(80).optional(),
-  description: z.string().trim().max(2000).optional(),
-  parties: z.object({
-    client: z.string().trim().max(160).optional(),
-    opposite: z.string().trim().max(160).optional(),
-  }).optional(),
-  key_dates: z.record(z.string().trim().max(60)).optional(),
-});
-
 export async function POST(req: NextRequest) {
   const userId = await currentUserId();
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
   const body = await req.json().catch(() => ({}));
-  const parsed = schema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.issues[0]?.message || 'Invalid input' }, { status: 400 });
+  const parsed = matterCreateSchema.safeParse(body);
+  if (!parsed.success) return NextResponse.json({ error: issueMessage(parsed.error) }, { status: 400 });
+
+  const { facts: rawFacts, parties, ...columns } = parsed.data;
+
+  let facts: Record<string, unknown>;
+  try {
+    facts = parseFacts(columns.matter_type_code, rawFacts);
+  } catch (err) {
+    if (err instanceof z.ZodError) return NextResponse.json({ error: issueMessage(err) }, { status: 400 });
+    throw err;
   }
-  const matter = await createMatter(userId, parsed.data);
-  await audit({ userId, action: 'matter.create', entity: 'matter', entityId: matter.id, meta: { title: matter.title } });
+
+  // The registry is the source of truth for the type's label, badge, statute and
+  // practice area, so the client cannot disagree with it.
+  const type = getMatterType(columns.matter_type_code);
+  const derived = type
+    ? {
+        matter_type: type.label,
+        practice_area: columns.practice_area ?? type.practiceArea,
+        code: columns.code ?? type.shortCode,
+        act: columns.act ?? type.act,
+        section: columns.section ?? type.section,
+        subtitle: columns.subtitle ?? [type.label, columns.court].filter(Boolean).join(' · '),
+      }
+    : {};
+
+  const matter = await createMatter(userId, {
+    ...columns,
+    ...derived,
+    facts,
+    status: columns.status ?? 'active',
+    tag: columns.tag ?? 'New',
+    tag_class: columns.tag_class ?? 't-brand',
+    parties: parties as PartyInput[] | undefined,
+  });
+
+  await audit({
+    userId,
+    action: 'matter.create',
+    entity: 'matter',
+    entityId: matter.id,
+    meta: { title: matter.title, matter_type_code: columns.matter_type_code, parties: parties?.length ?? 0 },
+  });
+
   return NextResponse.json({ ok: true, matter });
+}
+
+function issueMessage(error: z.ZodError): string {
+  const issue = error.issues[0];
+  if (!issue) return 'Invalid input';
+  const where = issue.path.filter((p) => typeof p !== 'number').join('.');
+  return where ? `${where}: ${issue.message}` : issue.message;
 }

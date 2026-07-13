@@ -133,7 +133,7 @@ export default function ReviewPage() {
             )}
             {messages.map((m, i) => (
               <div className={`msg ${m.role}`} key={i}>
-                {m.role === 'ai' && <div className="who">Adhivakta AI</div>}
+                {m.role === 'ai' && <div className="who">Erolt AI</div>}
                 <div className="bubble" style={{ whiteSpace: 'pre-wrap' }}>{m.content}</div>
                 {m.role === 'ai' && m.cites && m.cites.length > 0 && (
                   <div className="gap8" style={{ marginTop: 4, display: 'flex', flexWrap: 'wrap' }}>

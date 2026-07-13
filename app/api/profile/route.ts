@@ -14,13 +14,29 @@ export async function GET() {
   return NextResponse.json({ user: safe });
 }
 
+// Empty strings from the form become null so blank letterhead fields clear the
+// column rather than storing "".
+const clearable = (max: number) =>
+  z.string().trim().max(max).transform((v) => (v === '' ? null : v)).nullable().optional();
+
 const schema = z.object({
   name: z.string().trim().min(1).max(80).optional(),
-  firm_name: z.string().trim().max(120).nullable().optional(),
-  phone: z.string().trim().max(40).nullable().optional(),
-  bar_council_id: z.string().trim().max(60).nullable().optional(),
-  avatar_url: z.string().trim().max(500).nullable().optional(),
+  firm_name: clearable(120),
+  phone: clearable(40),
+  avatar_url: clearable(500),
   theme: z.string().trim().max(40).nullable().optional(),
+
+  designation: z.string().trim().min(1).max(60).optional(),
+  enrolment_no: clearable(60),
+  bar_council: clearable(120),
+  office_address: clearable(400),
+  city: clearable(80),
+  state: clearable(80),
+  pincode: z.string().trim().regex(/^[1-9][0-9]{5}$/, 'Pincode must be 6 digits')
+    .transform((v) => v)
+    .nullable().optional()
+    .or(z.literal('').transform(() => null)),
+  alt_phone: clearable(40),
 });
 
 export async function PUT(req: NextRequest) {

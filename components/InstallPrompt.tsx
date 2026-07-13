@@ -30,7 +30,7 @@ export default function InstallPrompt() {
   return (
     <div className="proto-ribbon" style={{ gap: 10, paddingRight: 8 }}>
       <span />
-      <span style={{ width: 'auto', height: 'auto', background: 'none' }}>Install Adhivakta AI</span>
+      <span style={{ width: 'auto', height: 'auto', background: 'none' }}>Install Erolt AI</span>
       <button className="cta brand" style={{ padding: '6px 12px' }} onClick={install}>
         <IconDownload /> Install
       </button>
