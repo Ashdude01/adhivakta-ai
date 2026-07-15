@@ -1,5 +1,8 @@
-// Adhivakta AI — minimal service worker for installability + basic offline shell.
-const CACHE = 'adhivakta-v1';
+// Erolt AI — minimal service worker for installability + basic offline shell.
+// Bumping this version name makes the activate handler purge every older cache,
+// which is what clears a stale "Adhivakta"-branded shell from a returning
+// browser. Bump it again on any future change that must invalidate the cache.
+const CACHE = 'erolt-v2';
 const APP_SHELL = ['/', '/dashboard', '/manifest.webmanifest'];
 
 self.addEventListener('install', (event) => {
