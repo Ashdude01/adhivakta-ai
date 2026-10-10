@@ -219,6 +219,35 @@ button { font-family: inherit; cursor: pointer; }
 }
 .brand .bt { font-family: var(--font-display); font-weight: 600; font-size: 17px; color: var(--sidebar-text); line-height: 1.1; }
 .brand .bs { font-size: 10px; color: var(--sidebar-faint); letter-spacing: .05em; text-transform: uppercase; margin-top: 2px; }
+
+/* ---- Sidebar toolbar: the only two topbar buttons worth keeping (collapse
+   toggle, notifications), now living with the rest of the chrome. ---- */
+.sidebar-tools { display: flex; align-items: center; gap: 8px; padding: 0 8px 18px; }
+/* Collapsed rail is only 76px wide — two 36px buttons side by side don't fit,
+   so they stack instead. */
+.sidebar.collapsed .sidebar-tools { flex-direction: column; justify-content: center; padding: 0 0 18px; }
+.sb-btn {
+  width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.04);
+  display: grid; place-items: center; color: var(--sidebar-dim); position: relative; transition: .16s;
+}
+.sb-btn:hover { background: rgba(255,255,255,.09); color: var(--sidebar-text); border-color: rgba(255,255,255,.18); }
+.sb-btn svg { width: 17px; height: 17px; }
+.sb-btn .dot { position: absolute; top: -2px; right: -2px; width: 9px; height: 9px; background: var(--danger); border-radius: 50%; border: 2px solid var(--sidebar-1); }
+
+/* ---- Mobile-only button to open the off-canvas sidebar. The toggle inside
+   the sidebar itself can't be reached until the sidebar is already open, so
+   this small floating button is the one piece of "topbar" mobile still needs. ---- */
+.mobile-menu-btn { display: none; }
+@media (max-width: 820px) {
+  .mobile-menu-btn {
+    display: grid; place-items: center; position: fixed; top: 14px; left: 14px; z-index: 35;
+    width: 42px; height: 42px; border-radius: 12px; border: 1px solid var(--line);
+    background: var(--surface); box-shadow: var(--shadow); color: var(--text);
+  }
+  .mobile-menu-btn svg { width: 18px; height: 18px; }
+}
+
 .nav-label { font-size: 10px; letter-spacing: .09em; text-transform: uppercase; color: var(--sidebar-faint); padding: 14px 10px 7px; font-weight: 700; }
 .nav-item {
   display: flex; align-items: center; gap: 12px; padding: 9px 12px; border-radius: 11px;
@@ -289,6 +318,14 @@ button { font-family: inherit; cursor: pointer; }
 .page-head { margin-bottom: 20px; }
 .page-head h1 { font-size: 27px; margin-bottom: 5px; color: var(--text); }
 .page-head p { color: var(--text-muted); font-size: 13.5px; max-width: 580px; }
+
+/* ---- Case detail header: title + actions sit above the scrolling document,
+   so Download/Print stay put and the court name is written once. ---- */
+.case-head { margin-bottom: 16px; }
+.case-head-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.case-head-row h1 { font-size: 22px; line-height: 1.25; margin-bottom: 4px; color: var(--text); max-width: 680px; }
+.case-meta { color: var(--text-muted); font-size: 13px; }
+.case-actions { display: flex; gap: 8px; flex-shrink: 0; }
 .section-title { display: flex; align-items: center; justify-content: space-between; margin: 24px 0 12px; }
 .section-title h2 { font-size: 18px; color: var(--text); }
 .section-title a, .link { color: var(--brand); font-weight: 700; font-size: 12.5px; cursor: pointer; }
@@ -397,7 +434,10 @@ textarea.doc-preview { background: transparent; color: var(--text); outline: non
 .matter-code { display: inline-flex; align-items: center; justify-content: center; min-width: 34px; height: 26px; padding: 0 6px; border-radius: 6px; background: var(--brand); color: var(--on-brand); font-size: 11px; font-weight: 800; flex: none; }
 
 /* ---- Review + Chat ---- */
-.review-grid { display: grid; grid-template-columns: 1fr 390px; gap: 18px; height: calc(100vh - 190px); min-height: 540px; }
+/* 130px = .content padding (26px × 2) + the page header above the grid.
+   The topbar used to eat another 60px of this budget — now that it's gone
+   (see .topbar below), the grid gets that space back. */
+.review-grid { display: grid; grid-template-columns: 1fr 390px; gap: 18px; height: calc(100vh - 130px); min-height: 540px; }
 .docview { overflow-y: auto; padding: 26px 30px; line-height: 1.85; font-size: 13px; color: var(--text); }
 .docview p { margin-bottom: 12px; }
 .pagehdr { font-size: 11px; color: var(--text-faint); font-weight: 700; text-transform: uppercase; letter-spacing: .05em; margin: 20px 0 9px; display: flex; align-items: center; gap: 8px; }
@@ -424,12 +464,96 @@ textarea.doc-preview { background: transparent; color: var(--text); outline: non
 @keyframes blink { 0%,80%,100%{ opacity: .25; } 40%{ opacity: 1; } }
 
 /* ---- Library ---- */
-.lib-card { padding: 18px; transition: .18s; border: 1px solid var(--line); display: flex; flex-direction: column; gap: 9px; }
+.lib-card { padding: 18px; cursor: pointer; transition: .18s; border: 1px solid var(--line); display: flex; flex-direction: column; gap: 9px; }
 .lib-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); border-color: transparent; }
-.lib-card .lt { font-family: var(--font-display); font-size: 15px; font-weight: 600; line-height: 1.3; color: var(--text); }
-.lib-card .meta { font-size: 11.5px; color: var(--text-muted); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.lib-card .excerpt { font-size: 12.5px; color: var(--text-muted); line-height: 1.5; }
+.lib-card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.lib-card .tag { display: inline-flex; align-items: center; gap: 4px; }
+.lib-card .lt { font-family: var(--font-display); font-size: 15px; font-weight: 600; line-height: 1.35; color: var(--text); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.lib-card .meta { font-size: 11.5px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.lib-card .excerpt { font-size: 12.5px; color: var(--text-muted); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .lib-card .foot { display: flex; align-items: center; gap: 8px; margin-top: auto; padding-top: 4px; }
+.lib-empty { grid-column: 1 / -1; padding: 40px 20px; text-align: center; font-size: 13px; }
+
+/* ---- Library toolbar + filters ---- */
+.lib-toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.lib-toolbar .cta { flex-shrink: 0; }
+.lib-filters { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+.lib-summary { font-size: 12.5px; margin-bottom: 12px; min-height: 16px; }
+
+.filter-pop-wrap { position: relative; display: inline-block; }
+.filter-trigger svg:last-child { opacity: .6; }
+.filter-pop {
+  position: absolute; z-index: 40; top: calc(100% + 6px); left: 0; width: 280px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+.filter-pop-search { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--line); color: var(--text-muted); }
+.filter-pop-search svg { flex-shrink: 0; }
+.filter-pop-search input { border: none; background: none; outline: none; flex: 1; font-family: inherit; font-size: 12.5px; color: var(--text); }
+.filter-pop-list { max-height: 260px; overflow-y: auto; padding: 6px; }
+.filter-pop-group { margin-bottom: 4px; }
+.filter-pop-group-label { font-size: 10.5px; font-weight: 700; letter-spacing: .03em; color: var(--text-faint); padding: 8px 8px 4px; }
+.filter-pop-item { display: flex; align-items: center; gap: 9px; padding: 7px 8px; border-radius: 8px; font-size: 12.5px; color: var(--text); cursor: pointer; }
+.filter-pop-item:hover { background: var(--brand-soft); }
+.filter-pop-item .chk {
+  width: 16px; height: 16px; border-radius: 5px; border: 1.5px solid var(--line-2); flex-shrink: 0;
+  display: grid; place-items: center; color: var(--on-brand); transition: .12s;
+}
+.filter-pop-item .chk.on { background: var(--brand); border-color: var(--brand); }
+.filter-pop-foot { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-top: 1px solid var(--line); }
+.filter-pop-foot .link:disabled { opacity: .4; cursor: not-allowed; }
+.filter-pop input[type="number"] {
+  border: 1px solid var(--line-2); border-radius: 9px; padding: 8px 10px;
+  font-family: inherit; font-size: 13px; color: var(--text); background: var(--surface-2); transition: .15s;
+}
+.filter-pop input[type="number"]:focus { outline: none; border-color: var(--brand); background: var(--surface); box-shadow: 0 0 0 3px var(--brand-soft); }
+
+.sort-select {
+  display: flex; align-items: center; gap: 6px; border: 1px solid var(--line-2); border-radius: 20px;
+  padding: 6px 12px; font-size: 12.5px; color: var(--text-muted); flex-shrink: 0;
+}
+.sort-select select { border: none; background: none; outline: none; font-family: inherit; font-size: 12.5px; color: var(--text); cursor: pointer; }
+.search .icon-btn { width: 22px; height: 22px; border: none; flex-shrink: 0; }
+
+/* ---- Add-case modal ---- */
+.modal-backdrop {
+  position: fixed; inset: 0; z-index: 70; background: rgba(20,16,10,.45);
+  display: flex; align-items: flex-start; justify-content: center; padding: 48px 16px; overflow-y: auto;
+}
+.modal { width: 100%; max-width: 620px; padding: 0; }
+.modal-head { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; border-bottom: 1px solid var(--line); }
+.modal-head h2 { font-size: 17px; }
+.modal-body { padding: 20px 22px 22px; }
+.modal-foot { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-top: 4px; }
+
+/* ---- Library item detail: select text -> highlight -> sidebar notes/links ---- */
+.docblock { cursor: text; }
+.docblock mark.hl { background: var(--accent-soft); border-bottom: 2px solid var(--accent); padding: 0 2px; border-radius: 3px; cursor: pointer; color: inherit; }
+.docblock mark.hl:hover { filter: brightness(0.97); }
+.docblock mark.hl.hl-active { background: var(--brand-soft); border-color: var(--brand); box-shadow: 0 0 0 2px var(--brand-soft); }
+.sel-toolbar { position: fixed; z-index: 60; display: flex; align-items: center; gap: 6px; padding: 7px 12px; background: var(--text); color: var(--surface); border: none; border-radius: 10px; box-shadow: var(--shadow-lg); font-size: 12.5px; font-weight: 700; }
+.sel-toolbar:hover { opacity: .9; }
+.hl-item { display: flex; flex-direction: column; gap: 6px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; cursor: pointer; transition: .14s; background: var(--surface); }
+.hl-item:hover { border-color: var(--brand); }
+.quote { font-size: 12.5px; font-style: italic; color: var(--text); line-height: 1.5; background: var(--accent-soft); border-left: 3px solid var(--accent); padding: 6px 10px; border-radius: 0 8px 8px 0; }
+.hl-counts { display: flex; gap: 10px; font-size: 11px; color: var(--text-muted); }
+.note-item { padding: 10px; border: 1px solid var(--line); border-radius: 10px; font-size: 12.5px; line-height: 1.5; background: var(--surface-2); }
+.link-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; font-size: 12.5px; background: var(--surface-2); }
+.link-item svg { width: 14px; height: 14px; flex-shrink: 0; color: var(--brand); }
+.link-item a { color: var(--brand); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.search-suggest { position: relative; }
+.search-suggest-list { position: absolute; z-index: 10; top: calc(100% + 4px); left: 0; right: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow-lg); max-height: 180px; overflow-y: auto; }
+.search-suggest-opt { display: block; width: 100%; text-align: left; padding: 8px 10px; font-size: 12.5px; border: none; background: none; cursor: pointer; }
+.search-suggest-opt:hover { background: var(--brand-soft); }
+
+/* ---- Print: only the judgment text, none of the app chrome ---- */
+@media print {
+  .no-print, .sidebar, .topbar, .chatpanel, .sel-toolbar, .mobile-menu-btn { display: none !important; }
+  .shell, .main, .content { display: block !important; height: auto !important; overflow: visible !important; padding: 0 !important; }
+  .review-grid { display: block !important; height: auto !important; }
+  .docview { overflow: visible !important; height: auto !important; padding: 0 !important; color: #000; }
+  .docblock mark.hl { background: none !important; border-bottom: none !important; }
+}
 
 /* ---- e-Sign ---- */
 .stepper { display: flex; align-items: center; margin-bottom: 24px; }
@@ -486,7 +610,9 @@ textarea.doc-preview { background: transparent; color: var(--text); outline: non
   .auth-side { display: none; }
 }
 @media (max-width: 820px) {
-  .content { padding: 18px 16px; }
+  /* Extra top padding clears the floating .mobile-menu-btn (fixed, top:14px,
+     42px tall) so it never sits on top of a back-link or page title. */
+  .content { padding: 66px 16px 18px; }
   .sidebar {
     position: fixed; left: 0; top: 0; transform: translateX(-100%);
     transition: transform .25s ease; box-shadow: var(--shadow-lg);
@@ -495,7 +621,13 @@ textarea.doc-preview { background: transparent; color: var(--text); outline: non
   .hamburger { display: grid; }
   .backdrop.show { display: block; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 25; }
   .page-head h1 { font-size: 23px; }
+  .case-head-row h1 { font-size: 20px; }
   .search .ph-long { display: none; }
+  .lib-toolbar { flex-wrap: wrap; }
+  .lib-toolbar .search { flex-basis: 100%; }
+  .filter-pop { width: min(280px, calc(100vw - 48px)); }
+  .modal-backdrop { padding: 16px; align-items: center; }
+  .modal-body { max-height: 72vh; overflow-y: auto; }
 }
 @media (max-width: 560px) {
   .grid.cols-4 { grid-template-columns: repeat(2,1fr) !important; }
@@ -505,3 +637,5 @@ textarea.doc-preview { background: transparent; color: var(--text); outline: non
   .kbd { display: none; }
   .topbar { padding: 0 14px; }
 }
+
+

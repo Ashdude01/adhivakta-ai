@@ -27,7 +27,16 @@ function loadEnv() {
     if (!t || t.startsWith('#')) continue;
     const i = t.indexOf('=');
     if (i === -1) continue;
-    env[t.slice(0, i).trim()] = t.slice(i + 1).trim();
+    let value = t.slice(i + 1).trim();
+    // Strip matching surrounding quotes — KEY="value" / KEY='value' are both
+    // common in .env files and shouldn't end up inside the actual string.
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1);
+    }
+    env[t.slice(0, i).trim()] = value;
   }
   return { ...env, ...process.env };
 }
@@ -69,6 +78,14 @@ async function runMigrations(client) {
     await client.query(sql);
     console.log('done');
   }
+  // Supabase's API layer (PostgREST) caches the table list and only learns
+  // about new tables/columns when told to reload. Running DDL over a plain
+  // `pg` connection (like this script does) doesn't always trigger that
+  // automatically, which shows up as a confusing "Could not find the table
+  // 'public.whatever' in the schema cache" (PGRST205) from the app even
+  // though the table clearly exists. Ask it to reload every time, just in case.
+  await client.query("NOTIFY pgrst, 'reload schema';");
+  console.log('✓ told PostgREST to reload its schema cache');
 }
 
 const SAMPLE_MATTERS = [

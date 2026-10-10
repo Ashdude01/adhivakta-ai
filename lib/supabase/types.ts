@@ -213,7 +213,85 @@ export interface DbLibraryItem {
   sections: string[];
   year: number | null;
   full_text: string | null;
+  /** CNR (Case Number Record) — only populated for AWS-ingested judgments that had it in their metadata sidecar. */
+  cnr: string | null;
+  /** Which bulk ingest this judgment came from, e.g. 'sc-aws-dattam' / 'hc-aws-dattam'. Null for community drafts. */
+  source_dataset: string | null;
   created_at: string;
+}
+
+/** A paragraph/chunk of a judgment's extracted text (supabase/migrations/0007). Used to anchor highlights. */
+export interface DbLibraryItemBlock {
+  id: string;
+  library_item_id: string;
+  seq: number;
+  page_no: number | null;
+  text: string;
+  created_at: string;
+}
+
+/**
+ * A user's text-selection highlight on one block of a judgment/draft.
+ * Private to the user who made it; optionally filed under one of their matters.
+ */
+export interface DbHighlight {
+  id: string;
+  library_item_id: string;
+  block_id: string;
+  user_id: string;
+  matter_id: string | null;
+  start_offset: number;
+  end_offset: number;
+  quote_text: string;
+  color: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DbHighlightNote {
+  id: string;
+  highlight_id: string;
+  user_id: string;
+  body: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export type HighlightLinkType = 'external' | 'library_item' | 'matter';
+
+export interface DbHighlightLink {
+  id: string;
+  highlight_id: string;
+  user_id: string;
+  link_type: HighlightLinkType;
+  label: string | null;
+  external_url: string | null;
+  target_library_item_id: string | null;
+  target_matter_id: string | null;
+  created_at: string;
+}
+
+/** Composed view returned to the client: one highlight + its notes + its links. */
+export interface HighlightDTO {
+  id: string;
+  blockId: string;
+  matterId: string | null;
+  startOffset: number;
+  endOffset: number;
+  quoteText: string;
+  color: string;
+  createdAt: string;
+  notes: Array<{ id: string; body: string; createdAt: string; updatedAt: string }>;
+  links: Array<{
+    id: string;
+    linkType: HighlightLinkType;
+    label: string | null;
+    externalUrl: string | null;
+    targetLibraryItemId: string | null;
+    targetMatterId: string | null;
+    /** Resolved title of the target judgment/matter, for display — null for external links. */
+    targetTitle: string | null;
+  }>;
 }
 
 export interface DbEsignRequest {

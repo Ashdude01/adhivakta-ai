@@ -4,6 +4,10 @@ export type LibItem = {
   title: string;
   court: string;
   citation?: string;
+  /** Year decided/filed — the only date precision the corpus carries. */
+  year?: number;
+  /** Case Number Record — only populated for AWS-ingested judgments that had it in their metadata. */
+  cnr?: string;
   tags: string[];
   author?: string;
   outcome?: string;
@@ -76,4 +80,9 @@ export const LIBRARY: LibItem[] = [
   },
 ];
 
-export const LIB_FILTERS = ['All', '⚖️ Judgments', '📝 Community drafts', 'Supreme Court', 'High Courts', '§138'];
+/** Quick kind filter for the Case Library's top tab row. */
+export const LIB_KIND_TABS = [
+  { value: '', label: 'All' },
+  { value: 'judgment', label: 'Judgments' },
+  { value: 'draft', label: 'Drafts' },
+] as const;

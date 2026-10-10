@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { currentUserId } from '@/lib/session';
 import {
-  listLibrary, contributeDraft, createContribution, linkContributionToItem,
+  searchLibrary, contributeDraft, createContribution, linkContributionToItem,
   awardCredit, findDuplicateDraft,
 } from '@/lib/data/library';
 import { anonymise } from '@/lib/legal/anonymiser';
@@ -10,18 +10,57 @@ import { audit, recordConsent } from '@/lib/data/audit';
 
 export const runtime = 'nodejs';
 
-export async function GET() {
-  const items = await listLibrary();
-  return NextResponse.json({ items });
+/**
+ * Search + filter for the Case Library panel. All params are optional —
+ * called with none of them, this returns the most recent 24 items, same as
+ * the old unfiltered list used to (just paginated now, since the corpus can
+ * run into the thousands after a bulk ingest).
+ */
+export async function GET(req: NextRequest) {
+  const sp = req.nextUrl.searchParams;
+  const kindRaw = sp.get('kind');
+  const kind = kindRaw === 'judgment' || kindRaw === 'draft' ? kindRaw : undefined;
+  const limit = Number(sp.get('limit')) || undefined;
+  const offset = Number(sp.get('offset')) || undefined;
+
+  // Multi-select court filter: repeated ?court=X&court=Y, or one comma-separated ?courts=X,Y.
+  const courtsList = [
+    ...sp.getAll('court'),
+    ...(sp.get('courts')?.split(',').map((c) => c.trim()).filter(Boolean) ?? []),
+  ];
+
+  const yearFromRaw = Number(sp.get('yearFrom'));
+  const yearToRaw = Number(sp.get('yearTo'));
+  const sortRaw = sp.get('sort');
+  const sort = sortRaw === 'cited' || sortRaw === 'year' || sortRaw === 'recent' ? sortRaw : undefined;
+
+  const { items, total } = await searchLibrary({
+    q: sp.get('q') ?? undefined,
+    kind,
+    courts: courtsList.length > 0 ? courtsList : undefined,
+    excludeCourt: sp.get('excludeCourt') ?? undefined,
+    yearFrom: Number.isFinite(yearFromRaw) && yearFromRaw > 0 ? yearFromRaw : undefined,
+    yearTo: Number.isFinite(yearToRaw) && yearToRaw > 0 ? yearToRaw : undefined,
+    tag: sp.get('tag') ?? undefined,
+    sort,
+    limit,
+    offset,
+  });
+  return NextResponse.json({ items, total });
 }
 
+const currentYear = new Date().getFullYear();
+
 const schema = z.object({
+  kind: z.enum(['judgment', 'draft']).default('draft'),
   title: z.string().trim().min(3).max(200),
   court: z.string().trim().max(120).optional(),
+  citation: z.string().trim().max(120).optional(),
+  year: z.number().int().min(1950).max(currentYear).optional(),
   outcome: z.string().trim().max(60).optional(),
   excerpt: z.string().trim().max(800).optional(),
   tags: z.array(z.string().trim().max(40)).max(12).optional(),
-  // full contribution pipeline fields (optional for metadata-only additions)
+  // full contribution pipeline fields (drafts only — optional for metadata-only additions)
   anonymisedText: z.string().max(200_000).optional(),
   rawText: z.string().max(200_000).optional(),
   confirmedRedactions: z.boolean().optional(),
@@ -37,10 +76,12 @@ export async function POST(req: NextRequest) {
   }
   const input = parsed.data;
 
-  // Metadata-only contribution (no document text) — legacy quick-add path.
-  if (!input.anonymisedText) {
+  // Judgments are public documents a lawyer is logging manually — no PII in a
+  // published judgment, so they skip the anonymiser pipeline entirely and go
+  // straight in, same as a metadata-only draft contribution.
+  if (input.kind === 'judgment' || !input.anonymisedText) {
     const item = await contributeDraft(userId, input);
-    await audit({ userId, action: 'library.contribute', entity: 'library_item', entityId: item.id, meta: { title: item.title, mode: 'metadata' } });
+    await audit({ userId, action: 'library.contribute', entity: 'library_item', entityId: item.id, meta: { title: item.title, mode: input.kind === 'judgment' ? 'judgment' : 'metadata' } });
     return NextResponse.json({ ok: true, item });
   }
 
@@ -85,6 +126,8 @@ export async function POST(req: NextRequest) {
   const item = await contributeDraft(userId, {
     title: input.title,
     court: input.court,
+    citation: input.citation,
+    year: input.year,
     tags: input.tags,
     outcome: input.outcome,
     excerpt: input.excerpt ?? input.anonymisedText.slice(0, 240),

@@ -40,3 +40,10 @@ export const IconExternal = (p: P) => (<svg {...base(p)}><path d="M15 3h6v6M10 1
 export const IconMinus = (p: P) => (<svg {...base({ strokeWidth: 2.4, ...p })}><path d="M5 12h14"/></svg>);
 export const IconStop = (p: P) => (<svg {...base(p)} fill="currentColor" stroke="none"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>);
 export const IconFilePdf = (p: P) => (<svg {...base(p)}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M8.5 13h1a1.5 1.5 0 0 1 0 3h-1Zm0 3v2"/></svg>);
+export const IconHighlighter = (p: P) => (<svg {...base(p)}><path d="m9 11-6 6v4h4l6-6"/><path d="m16 4 4 4-8 8-4-4Z"/></svg>);
+export const IconLink = (p: P) => (<svg {...base(p)}><path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 0 0-7.07 0L4.1 13.83a5 5 0 0 0 7.07 7.07L12.5 19.5"/></svg>);
+export const IconPrinter = (p: P) => (<svg {...base(p)}><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>);
+export const IconMessage = (p: P) => (<svg {...base(p)}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg>);
+export const IconFilter = (p: P) => (<svg {...base(p)}><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3Z"/></svg>);
+export const IconCalendar = (p: P) => (<svg {...base(p)}><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>);
+export const IconBuilding = (p: P) => (<svg {...base(p)}><path d="M3 21h18M6 21V7l6-4 6 4v14M9 9h1m-1 4h1m4-4h1m-1 4h1M9 21v-4h6v4"/></svg>);

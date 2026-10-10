@@ -7,7 +7,7 @@ import InstallPrompt from './InstallPrompt';
 import ProfileMenu from './ProfileMenu';
 import {
   IconGrid, IconPen, IconDoc, IconBook, IconSign, IconFolder, IconSettings,
-  IconSearch, IconBell, IconPlus, IconSidebar,
+  IconBell, IconSidebar,
 } from './Icons';
 
 const NAV = [
@@ -65,6 +65,17 @@ export default function AppShell({ children }: { children: ReactNode }) {
           </div>
         </div>
 
+        {/* The only two topbar buttons that earned their keep — collapse
+            toggle and notifications — moved here when the topbar was retired. */}
+        <div className="sidebar-tools">
+          <button className="sb-btn" onClick={toggleSidebar} aria-label="Toggle sidebar" title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}>
+            <IconSidebar />
+          </button>
+          <button className="sb-btn" aria-label="Notifications" title="Notifications">
+            <IconBell /><span className="dot" />
+          </button>
+        </div>
+
         {NAV.map((g) => (
           <div key={g.group}>
             <div className="nav-label">{g.group}</div>
@@ -88,19 +99,31 @@ export default function AppShell({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
-      <div className="main">
-        <div className="topbar">
-          <button className="tb-btn" onClick={toggleSidebar} aria-label="Toggle sidebar">
-            <IconSidebar />
-          </button>
-          <div className="search">
-            <IconSearch />
-            <span className="ph-long">Search cases, drafts, sections or ask AI…</span>
-            <span className="kbd" style={{ marginLeft: 'auto' }}>⌘K</span>
-          </div>
-          <button className="tb-btn" aria-label="Notifications"><IconBell /><span className="dot" /></button>
-          <Link href="/draft" className="cta brand"><IconPlus /> New Draft</Link>
+      {/* Topbar retired — it was mostly empty space for a non-functional search
+          box. Its two useful buttons (sidebar toggle, notifications) now live
+          in the sidebar itself (see .sidebar-tools above). Left here commented
+          out, not deleted, in case we bring back a real global search later. */}
+      {/*
+      <div className="topbar">
+        <button className="tb-btn" onClick={toggleSidebar} aria-label="Toggle sidebar">
+          <IconSidebar />
+        </button>
+        <div className="search">
+          <IconSearch />
+          <span className="ph-long">Search cases, drafts, sections or ask AI…</span>
+          <span className="kbd" style={{ marginLeft: 'auto' }}>⌘K</span>
         </div>
+        <button className="tb-btn" aria-label="Notifications"><IconBell /><span className="dot" /></button>
+        <Link href="/draft" className="cta brand"><IconPlus /> New Draft</Link>
+      </div>
+      */}
+
+      <div className="main">
+        {/* Mobile only: the sidebar starts off-canvas, so its own toggle button
+            isn't reachable until it's already open. This is the one way back in. */}
+        <button className="mobile-menu-btn" onClick={toggleSidebar} aria-label="Open sidebar">
+          <IconSidebar />
+        </button>
 
         <div className="content scroll">{children}</div>
       </div>
